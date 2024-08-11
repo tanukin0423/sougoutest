@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>詳細キャリア診断プログラム</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .question {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .choices label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .choices input[type="radio"] {
+            margin-right: 10px;
+        }
+        .submit-button, .action-button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+        }
+        .submit-button:hover, .action-button:hover {
+            background-color: #27ae60;
+        }
+        #result {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #result h2 {
+            color: #e74c3c;
+        }
+        #chart-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .trait-description {
+            background-color: #eaf2f8;
+            border-left: 5px solid #3498db;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .career-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .career-item h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .question, #result {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>詳細キャリア診断プログラム</h1>
+    <form id="quiz-form">
+        <div class="question">
+            <h2>1. あなたが最も重視する仕事の要素はどれですか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q1" value="1" required> 職場の人間関係</label>
+                <label><input type="radio" name="q1" value="2"> 成果の達成感</label>
+                <label><input type="radio" name="q1" value="3"> キャリアの成長</label>
+                <label><input type="radio" name="q1" value="4"> 仕事の意義</label>
+                <label><input type="radio" name="q1" value="5"> 給与と福利厚生</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>2. あなたが最も得意とするスキルは何ですか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q2" value="1" required> 分析と問題解決</label>
+                <label><input type="radio" name="q2" value="2"> コミュニケーションと対人関係</label>
+                <label><input type="radio" name="q2" value="3"> 創造性とイノベーション</label>
+                <label><input type="radio" name="q2" value="4"> 組織化と計画立案</label>
+                <label><input type="radio" name="q2" value="5"> 技術的スキル</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>3. あなたが最も興味を持っている分野は何ですか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q3" value="1" required> 科学技術</label>
+                <label><input type="radio" name="q3" value="2"> 芸術と文化</label>
+                <label><input type="radio" name="q3" value="3"> ビジネスと経済</label>
+                <label><input type="radio" name="q3" value="4"> 社会問題と環境</label>
+                <label><input type="radio" name="q3" value="5"> 健康とウェルネス</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>4. あなたにとって理想的な職場環境はどのようなものですか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q4" value="1" required> 競争的で刺激的</label>
+                <label><input type="radio" name="q4" value="2"> 協力的でサポーティブ</label>
+                <label><input type="radio" name="q4" value="3"> 自律的で柔軟</label>
+                <label><input type="radio" name="q4" value="4"> 構造化されて安定</label>
+                <label><input type="radio" name="q4" value="5"> 創造的でダイナミック</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>5. 仕事で最も達成感を感じる瞬間はどれですか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q5" value="1" required> 大規模プロジェクトの完了</label>
+                <label><input type="radio" name="q5" value="2"> 新しい技術の習得</label>
+                <label><input type="radio" name="q5" value="3"> チームの成功</label>
+                <label><input type="radio" name="q5" value="4"> 顧客からの感謝の言葉</label>
+                <label><input type="radio" name="q5" value="5"> 自己目標の達成</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>6. どのようなリーダーシップスタイルがあなたに合っていますか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q6" value="1" required> 指示的なリーダーシップ</label>
+                <label><input type="radio" name="q6" value="2"> 参加型リーダーシップ</label>
+                <label><input type="radio" name="q6" value="3"> 委任型リーダーシップ</label>
+                <label><input type="radio" name="q6" value="4"> サーバントリーダーシップ</label>
+                <label><input type="radio" name="q6" value="5"> 変革型リーダーシップ</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>7. あなたが最も価値を置く仕事の側面は何ですか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q7" value="1" required> 創造性と革新</label>
+                <label><input type="radio" name="q7" value="2"> 安定性と予測可能性</label>
+                <label><input type="radio" name="q7" value="3"> 社会的影響力</label>
+                <label><input type="radio" name="q7" value="4"> 専門性の向上</label>
+                <label><input type="radio" name="q7" value="5"> 経済的報酬</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>8. ストレスの多い状況下でどのように対処しますか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q8" value="1" required> 問題を分析し、論理的に解決策を見出す</label>
+                <label><input type="radio" name="q8" value="2"> 他者からサポートを求める</label>
+                <label><input type="radio" name="q8" value="3"> 創造的な方法で問題に取り組む</label>
+                <label><input type="radio" name="q8" value="4"> 瞑想やマインドフルネスを実践する</label>
+                <label><input type="radio" name="q8" value="5"> 運動や身体活動で発散する</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>9. あなたの理想的なキャリアパスはどのようなものですか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q9" value="1" required> 専門家としての地位を確立する</label>
+                <label><input type="radio" name="q9" value="2"> 起業家として自己の事業を展開する</label>
+                <label><input type="radio" name="q9" value="3"> 組織内でリーダーシップポジションに就く</label>
+                <label><input type="radio" name="q9" value="4"> フリーランスとして多様なプロジェクトに携わる</label>
+                <label><input type="radio" name="q9" value="5"> 社会的企業や非営利組織で働く</label>
+            </div>
+        </div>
+        <div class="question">
+            <h2>10. 新しい技術や変化に対してどのような態度を取りますか？</h2>
+            <div class="choices">
+                <label><input type="radio" name="q10" value="1" required> 積極的に学び、適応する</label>
+                <label><input type="radio" name="q10" value="2"> 慎重に評価してから採用する</label>
+                <label><input type="radio" name="q10" value="3"> 必要に応じて学ぶが、伝統的な方法も重視する</label>
+                <label><input type="radio" name="q10" value="4"> 変化を主導し、イノベーションを推進する</label>
+                <label><input type="radio" name="q10" value="5"> 専門家の助言に基づいて対応する</label>
+            </div>
+        </div>
+        <button type="submit" class="submit-button">結果を見る</button>
+    </form>
+
+    <div id="result" style="display:none;">
+        <h2>あなたの診断結果</h2>
+        <div id="chart-container">
+            <canvas id="result-chart"></canvas>
+        </div>
+        <div id="trait-description"></div>
+        <div id="result-text"></div>
+        <div id="ai-advice"></div>
+        <div class="save-result">
+            <button id="save-button" class="action-button">結果を保存</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('quiz-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const results = calculateResults();
+            displayResults(results);
+        });
+
+        function calculateResults() {
+            const results = {
+                '1': 0, '2': 0, '3': 0, '4': 0, '5': 0
+            };
+            const formData = new FormData(document.getElementById('quiz-form'));
+            for (const [key, value] of formData.entries()) {
+                results[value]++;
+            }
+            return results;
+        }
+
+        function interpretResults(results) {
+            let interpretation = '診断結果:\n\n';
+            const traits = {
+                '1': '革新型',
+                '2': '安定型',
+                '3': '成長型',
+                '4': '協調型',
+                '5': '専門型'
+            };
+
+            let dominantTrait = Object.keys(results).reduce((a, b) => results[a] > results[b] ? a : b);
+            
+            interpretation += `あなたは主に${traits[dominantTrait]}の特性を持っています。\n`;
+            
+            return [interpretation, dominantTrait, traits];
+        }
+
+        function suggestCareers(dominantTrait) {
+            const careers = {
+                '1': [
+                    {
+                        title: 'ウェブデザイナー見習い',
+                        description: 'ウェブサイトの視覚的デザインを学び、基本的なHTML/CSSを使用してサイトを作成します。'
+                    },
+                    {
+                        title: 'スタートアップ企業のインターン',
+                        description: '新興企業で様々な業務を経験し、ビジネスの基礎と革新的な思考を学びます。'
+                    },
+                    {
+                        title: 'ソーシャルメディアコンテンツクリエイター',
+                        description: '企業や個人のソーシャルメディアアカウント用の魅力的なコンテンツを作成します。'
+                    },
+                    {
+                        title: '学生イノベーションコンテスト参加者',
+                        description: '新しいアイデアを競い合うコンテストに参加し、創造力と問題解決能力を磨きます。'
+                    },
+                    {
+                        title: 'テクノロジーイベントスタッフ',
+                        description: '技術系イベントの運営をサポートし、最新のトレンドや革新に触れる機会を得ます。'
+                    }
+                ],
+               '2': [
+                    {
+                        title: '経理アシスタント',
+                        description: '財務データの整理と基本的な会計処理を学びます。'
+                    },
+                    {
+                        title: '顧客サービス代表',
+                        description: '企業の顧客対応を担当し、コミュニケーションスキルを磨きます。'
+                    },
+                    {
+                        title: '品質管理インターン',
+                        description: '製品やサービスの品質基準を学び、安定した品質維持に貢献します。'
+                    },
+                    {
+                        title: 'データ入力クラーク',
+                        description: '正確なデータ入力スキルを身につけ、情報管理の基礎を学びます。'
+                    },
+                    {
+                        title: '行政アシスタント',
+                        description: '公共機関でのオフィスワークを通じて、組織運営の基礎を学びます。'
+                    }
+                ],
+                '3': [
+                    {
+                        title: 'トレーニングプログラム参加者',
+                        description: '企業や組織が提供する研修プログラムに参加し、様々なスキルを習得します。'
+                    },
+                    {
+                        title: '見習いセールス担当',
+                        description: '販売技術を学びながら、顧客とのコミュニケーションスキルを向上させます。'
+                    },
+                    {
+                        title: 'アシスタントマネージャー',
+                        description: '小規模チームの管理を通じて、リーダーシップスキルを磨きます。'
+                    },
+                    {
+                        title: 'プロジェクト管理アシスタント',
+                        description: 'プロジェクトの進行管理を学び、組織力と計画力を向上させます。'
+                    },
+                    {
+                        title: 'キャリアカウンセリングインターン',
+                        description: '他者のキャリア支援を通じて、自身のキャリア開発スキルも磨きます。'
+                    }
+                ],
+                '4': [
+                    {
+                        title: 'チームビルディングファシリテーター',
+                        description: 'グループ活動を通じて、チームワークとリーダーシップスキルを向上させます。'
+                    },
+                    {
+                        title: 'コミュニティイベントオーガナイザー',
+                        description: '地域イベントの企画・運営を通じて、コミュニケーションと組織力を磨きます。'
+                    },
+                    {
+                        title: 'ピアメンター',
+                        description: '同年代の学生をサポートし、相互学習とコーチングスキルを身につけます。'
+                    },
+                    {
+                        title: '非営利団体ボランティアコーディネーター',
+                        description: 'ボランティア活動の調整を通じて、人材管理と協調性を学びます。'
+                    },
+                    {
+                        title: '顧客フィードバック分析員',
+                        description: '顧客の声を分析し、サービス改善につなげる方法を学びます。'
+                    }
+                ],
+                '5': [
+                    {
+                        title: '研究室アシスタント',
+                        description: '特定の分野の研究をサポートし、専門知識と研究スキルを深めます。'
+                    },
+                    {
+                        title: '専門技術トレーニー',
+                        description: '特定の技術分野で集中的なトレーニングを受け、専門性を高めます。'
+                    },
+                    {
+                        title: 'テクニカルライター見習い',
+                        description: '専門的な文書作成スキルを磨き、技術情報の伝達方法を学びます。'
+                    },
+                    {
+                        title: '専門分野のチュータリングアシスタント',
+                        description: '特定の科目や技能の指導を通じて、知識の深化と教育スキルを身につけます。'
+                    },
+                    {
+                        title: '業界専門インターン',
+                        description: '特定の業界で集中的な実務経験を積み、専門知識とスキルを習得します。'
+                    }
+                ]
+            };
+
+            return careers[dominantTrait];
+        }
+
+        function displayResults(results) {
+            let [resultText, dominantTrait, traits] = interpretResults(results);
+            let suggestedCareers = suggestCareers(dominantTrait);
+
+            // チャートの表示
+            const ctx = document.getElementById('result-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: Object.values(traits),
+                    datasets: [{
+                        label: '特性スコア',
+                        data: Object.values(results),
+                        fill: true,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        pointBackgroundColor: 'rgb(54, 162, 235)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(54, 162, 235)'
+                    }]
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 特性の説明
+            const traitDescriptions = {
+                '1': '革新型の人は、新しいアイデアや方法を生み出すことに長けています。創造性が高く、変化を好み、問題に対して独創的な解決策を見出す傾向があります。',
+                '2': '安定型の人は、一貫性と信頼性を重視します。計画的で、リスクを慎重に評価し、安定した環境で効率的に働くことができます。',
+                '3': '成長型の人は、常に学び、成長することに意欲的です。新しい挑戦を歓迎し、自己啓発と能力向上に強い関心を持っています。',
+                '4': '協調型の人は、他者との協力とチームワークを重視します。対人関係に優れ、調和のとれた環境で最も力を発揮します。',
+                '5': '専門型の人は、特定の分野で深い知識と技能を持つことを好みます。精密さと専門性を重視し、専門分野で卓越することを目指します。'
+            };
+
+            document.getElementById('trait-description').innerHTML = `
+                <div class="trait-description">
+                    <h3>${traits[dominantTrait]}の特徴</h3>
+                    <p>${traitDescriptions[dominantTrait]}</p>
+                </div>
+            `;
+
+            // キャリア提案
+            let careerSuggestions = '<h3>おすすめの職種:</h3>';
+            suggestedCareers.forEach(career => {
+                careerSuggestions += `
+                    <div class="career-item">
+                        <h3>${career.title}</h3>
+                        <p>${career.description}</p>
+                    </div>
+                `;
+            });
+
+            resultText += careerSuggestions;
+
+            resultText += '\n注意: これらの職種は、あなたの特性に基づいた入門レベルの提案です。実際の就職には、個人の興味、学歴、スキル、そして地域の求人状況なども考慮する必要があります。大学のキャリアセンターやインターンシッププログラムも活用し、実際の職場体験を通じて自分に合った職種を見つけていくことをお勧めします。';
+
+            document.getElementById('result-text').innerHTML = resultText.replace(/\n/g, '<br>');
+
+            // AIによるパーソナライズされたアドバイス
+            const aiAdvice = generateAIAdvice(dominantTrait, traits[dominantTrait]);
+            document.getElementById('ai-advice').innerHTML = `
+                <h3>AIによるパーソナライズされたアドバイス</h3>
+                <p>${aiAdvice}</p>
+            `;
+
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function generateAIAdvice(dominantTrait, traitName) {
+            const advices = {
+                '1': `${traitName}の特性を持つあなたには、常に新しいアイデアを探求し、創造的なプロジェクトに取り組むことをお勧めします。ブレインストーミングセッションや革新的なワークショップに参加して、あなたの創造力を磨いてください。また、最新の技術トレンドにも注目し、それらを活用する方法を考えてみましょう。`,
+                '2': `${traitName}の特性を持つあなたには、長期的な目標を設定し、それに向けて着実に進んでいくことをお勧めします。時間管理とタスク管理のスキルを向上させ、安定した環境で効率的に働く方法を学んでください。また、リスク管理の知識を深めることも有益でしょう。`,
+                '3': `${traitName}の特性を持つあなたには、継続的な学習の機会を積極的に求めることをお勧めします。オンラインコースやワークショップに参加し、新しいスキルを習得してください。また、メンターを見つけて指導を受けることも、あなたの成長を加速させるでしょう。`,
+                '4': `${traitName}の特性を持つあなたには、チームプロジェクトや共同作業の機会を積極的に求めることをお勧めします。コミュニケーションスキルと対人関係スキルを磨き、ネットワーキングイベントに参加して人脈を広げてください。また、異なる背景を持つ人々と協力する機会も大切にしましょう。`,
+                '5': `${traitName}の特性を持つあなたには、特定の分野で深い専門知識を築くことをお勧めします。選択した分野の最新の研究や技術動向をフォローし、専門的な資格取得も検討してください。また、その分野の専門家とコンタクトを取り、指導を受ける機会を探してみましょう。`
+            };
+
+            return advices[dominantTrait];
+        }
+
+        function saveResult() {
+            const resultText = document.getElementById('result-text').innerText;
+            const traitDescription = document.getElementById('trait-description').innerText;
+            const aiAdvice = document.getElementById('ai-advice').innerText;
+            const canvas = document.getElementById('result-chart');
+            const chartImage = canvas.toDataURL();
+
+            let htmlContent = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>キャリア診断結果</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1, h2 { color: #2c3e50; }
+        .section { background-color: #f9f9f9; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <h1>キャリア診断結果</h1>
+    <p>診断日時: ${new Date().toLocaleString()}</p>
+    
+    <div class="section">
+        <h2>診断結果チャート</h2>
+        <img src="${chartImage}" alt="診断結果チャート">
+    </div>
+    
+    <div class="section">
+        <h2>特性の説明</h2>
+        <p>${traitDescription}</p>
+    </div>
+    
+    <div class="section">
+        <h2>診断結果詳細</h2>
+        <p>${resultText}</p>
+    </div>
+    
+    <div class="section">
+        <h2>AIによるアドバイス</h2>
+        <p>${aiAdvice}</p>
+    </div>
+</body>
+</html>
+            `;
+
+            // HTMLファイルとして保存
+            const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "キャリア診断結果_" + new Date().toISOString().slice(0,10) + ".html";
+            link.click();
+        }
+
+        document.getElementById('save-button').addEventListener('click', saveResult);
+    </script>
+</body>
+</html>
